@@ -95,6 +95,13 @@ else(MSVC)
   endif()
 endif(MSVC)
 
+# patch for preventing Halide from applying distributive rule on floating values.
+set(HALIDE_PATCH_COMMAND1 git apply ${PROJECT_SOURCE_DIR}/cmake/patches/halide_fp_simplify.patch)
+execute_process(COMMAND ${HALIDE_PATCH_COMMAND1} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/3rdparty/HalideIR)
+# Tensorization patch for export functions in Halide 
+set(HALIDE_PATCH_COMMAND2 git apply ${PROJECT_SOURCE_DIR}/cmake/patches/halideIR.patch)
+execute_process(COMMAND ${HALIDE_PATCH_COMMAND2} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/3rdparty/HalideIR)
+
 # add source group
 FILE(GLOB_RECURSE GROUP_SOURCE "src/*.cc" "3rdparty/HalideIR/src/*.cpp" "nnvm/src/*.cc")
 FILE(GLOB_RECURSE GROUP_INCLUDE "src/*.h" "include/*.h" "3rdparty/HalideIR/src/*.h"

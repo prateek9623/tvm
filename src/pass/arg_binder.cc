@@ -46,7 +46,12 @@ bool ArgBinder::Bind_(const Expr& arg,
       }
       return true;
     } else {
-      BinderAddAssert(it->second == value, arg_name, &asserts_);
+      if (arg.type().is_handle()) {
+        BinderAddAssert(reinterpret(UInt(64), it->second) == reinterpret(UInt(64), value),
+                        arg_name, &asserts_);
+      } else {
+        BinderAddAssert(it->second == value, arg_name, &asserts_);
+      }
     }
   } else {
     BinderAddAssert(arg == value, arg_name, &asserts_);

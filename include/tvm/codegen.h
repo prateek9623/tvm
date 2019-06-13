@@ -42,6 +42,15 @@ runtime::Module Build(const Array<LoweredFunc>& funcs,
  * \return cstr The C string representation of the file.
  */
 std::string PackImportsToC(const runtime::Module& m, bool system_lib);
+
+
+/*!
+ * \breif Export LookupLLVMIntrinsic to enable direct call
+ *  to llvm instrinsic (e.g. AVX2/AVX512) in tvm tensorization
+ */
+TVM_DLL unsigned LookupLLVMIntrinsic(const std::string& name);
+
+
 }  // namespace codegen
 }  // namespace tvm
 
