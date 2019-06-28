@@ -278,6 +278,12 @@ TVM_DLL std::ostream& operator<<(std::ostream& os, const NodeRef& n);  // NOLINT
  */
 TVM_DLL void Dump(const NodeRef& node);
 
+/*!
+ * \brief Dump the node to char[], used for debug purposes.
+ * \param node The input node
+ */
+TVM_DLL std::unique_ptr<char[]> ToString(const NodeRef& node);
+
 // definition of Node.
 /*!
  * \brief An iteration variable representing an iteration
