@@ -52,6 +52,14 @@ void Dump(const NodeRef& n) {
   std::cerr << n << "\n";
 }
 
+std::unique_ptr<char[]> ToString(const NodeRef& n) {
+  std::ostringstream s;
+  s << n << "\n";
+  std::unique_ptr<char[]> cc(new char[s.str().length() + 1]);
+  strcpy(cc.get(), s.str().c_str());
+  return cc;
+}
+
 Var var(const std::string& name_hint, Type t) {
   return Var(name_hint, t);
 }
