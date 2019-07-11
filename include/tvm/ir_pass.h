@@ -35,7 +35,7 @@ TVM_DLL Expr Simplify(Expr expr, Map<Var, Range> vrange = Map<Var, Range>());
  * \param vrange The range information about the variable.
  * \return Canonicalized statement.
  */
-Stmt Simplify(Stmt stmt, Map<Var, Range> vrange = Map<Var, Range>());
+TVM_DLL Stmt Simplify(Stmt stmt, Map<Var, Range> vrange = Map<Var, Range>());
 
 /*!
  * \brief Simplify by applying canonical form.
@@ -43,8 +43,8 @@ Stmt Simplify(Stmt stmt, Map<Var, Range> vrange = Map<Var, Range>());
  * \param vrange The range information about the variable.
  * \return Canonicalized statement.
  */
-Stmt CanonicalSimplify(Stmt stmt,
-                       Map<Var, Range> vrange = Map<Var, Range>());
+TVM_DLL Stmt CanonicalSimplify(Stmt stmt,
+                               Map<Var, Range> vrange = Map<Var, Range>());
 
 /*!
  * \brief Simplify by applying canonical form.
