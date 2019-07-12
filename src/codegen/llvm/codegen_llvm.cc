@@ -971,7 +971,7 @@ void CodeGenLLVM::VisitStmt_(const Store* op) {
     llvm::Value* predicate = MakeValue(op->predicate);
 
     if (t.lanes() == 1) {
-      // scalar store when lanes == 1
+      // special store when lanes == 1
       int alignment, native_bits;
       GetAlignment(t, op->buffer_var.get(), op->index, &alignment, &native_bits);
       llvm::Value* ptr = CreateBufferPtr(t, buffer, index);
