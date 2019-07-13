@@ -38,13 +38,15 @@ struct ComputeLoopNest {
    * \param stage The scxhedule stage.
    * \param dom_map The domain map.
    * \param debug_keep_trivial_loop Whether keep trivial loops with extent of 1
+   * \param force_no_condition Whether generate condition in the loops
    * \return The constructed loop nest
    */
   static ComputeLoopNest make(
       const ComputeOpNode* self,
       const Stage& stage,
       const std::unordered_map<IterVar, Range>& dom_map,
-      bool debug_keep_trivial_loop);
+      bool debug_keep_trivial_loop,
+      bool force_no_condition = false);
 };
 
 /*!
