@@ -426,7 +426,7 @@ ComputeLoopNest ComputeLoopNest::make(
       stage, dom_map, 0, false, std::unordered_set<IterVar>(), &ret.main_vmap,
       debug_keep_trivial_loop);
   // Force not generate condition for tensorization
-  if (force_no_condition) {
+  if (!force_no_condition) {
     ret.main_predicates = schedule::MakeBoundCheck(
         stage, dom_map, ret.main_vmap, false,
         std::unordered_set<IterVar>());
@@ -472,7 +472,7 @@ ComputeLoopNest ComputeLoopNest::make(
         skip_iter, &(ret.init_vmap), debug_keep_trivial_loop);
 
     // Force not generate condition for tensorization
-    if (force_no_condition) {
+    if (!force_no_condition) {
       ret.init_predicates = schedule::MakeBoundCheck(
           stage, dom_map, ret.init_vmap, true, skip_iter);
       for (auto& e : ret.init_predicates) {
