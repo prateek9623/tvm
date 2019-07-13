@@ -298,6 +298,27 @@ Stmt Buffer::vstore(Array<Expr> begin, Expr value) const {
   }
 }
 
+Stmt Buffer::pvstore(Array<Expr> begin, Expr value, Expr predicate) const {
+  const BufferNode* n = operator->();
+  Type dtype = value.type();
+  CHECK(dtype.element_of() == n->dtype.element_of() && 
+        dtype.lanes() % n->dtype.lanes() == 0)
+      << "Cannot load " << dtype 
+      << " from buffer of " << n->dtype;
+  CHECK(dtype.lanes() == predicate.type().lanes())
+      << "Mask lanes " << predicate.type().lanes() 
+      << " not match vector lanes " << dtype.lanes();
+  if (value.type() == Bool()) {
+    return ir::Store::make(n->data, 
+                           ir::Cast::make(Int(8), value),
+                           BufferOffset(n, begin, Int(8)),
+                           predicate);
+  } else {
+    return ir::Store::make(n->data, value, BufferOffset(n, begin, dtype), 
+                           predicate);
+  }
+}
+
 Buffer Buffer::MakeStrideView() const {
   if ((*this)->strides.size() != 0) return *this;
   if ((*this)->shape.size() == 0) return *this;

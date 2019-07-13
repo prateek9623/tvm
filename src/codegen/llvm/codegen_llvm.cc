@@ -962,7 +962,42 @@ llvm::Value* CodeGenLLVM::VisitExpr_(const Broadcast* op) {
 }
 
 void CodeGenLLVM::VisitStmt_(const Store* op) {
-  CHECK(is_one(op->predicate));
+  // Create mask store when predicate is not one
+  if (!is_one(op->predicate)) {
+    Type t = op->value.type();
+    llvm::Value* buffer = MakeValue(op->buffer_var);
+    llvm::Value* value = MakeValue(op->value);
+    llvm::Value* index = MakeValue(op->index);
+    llvm::Value* predicate = MakeValue(op->predicate);
+
+    if (t.lanes() == 1) {
+      // special store when lanes == 1
+      int alignment, native_bits;
+      GetAlignment(t, op->buffer_var.get(), op->index, &alignment, &native_bits);
+      llvm::Value* ptr = CreateBufferPtr(t, buffer, index);
+      llvm::CallInst* store = builder_->CreateMaskedStore(value, ptr, alignment, predicate);
+      AddAliasInfo(store, op->buffer_var.get(), op->index, op->value.type());
+      return;
+    } else {
+      // vector store when lanes != 1
+      unsigned addrspace = llvm::dyn_cast<llvm::PointerType>(buffer->getType())->getAddressSpace();
+      if (const Ramp* ramp = op->index.as<Ramp>()) {
+        if (is_one(ramp->stride)) {
+          int alignment, native_bits;
+          GetAlignment(t, op->buffer_var.get(), ramp->base, &alignment, &native_bits);
+          CHECK_EQ(ramp->lanes, t.lanes());
+          llvm::Value* ptr = CreateBufferPtr(t.element_of(), buffer, MakeValue(ramp->base));
+          ptr = builder_->CreatePointerCast(ptr, LLVMType(t)->getPointerTo(addrspace));
+          llvm::CallInst* store = builder_->CreateMaskedStore(value, ptr, alignment, predicate);
+          AddAliasInfo(store, op->buffer_var.get(), op->index, op->value.type());
+          return;
+        }
+      }
+    }
+  }
+
+  // Create full store when predicate is one
+  /** Below is original TVM code. Keep it. **/
   Type t = op->value.type();
   bool is_volatile = volatile_buf_.count(op->buffer_var.get());
   llvm::Value* buffer = MakeValue(op->buffer_var);

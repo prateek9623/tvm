@@ -3,7 +3,7 @@ index 7174974..4193ada 100644
 --- a/src/arithmetic/Simplify.cpp
 +++ b/src/arithmetic/Simplify.cpp
 @@ -555,6 +555,16 @@ private:
-
+ 
          Expr a = mutate(op->a);
          Expr b = mutate(op->b);
 +

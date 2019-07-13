@@ -70,6 +70,13 @@ class Buffer : public NodeRef {
    */
   TVM_DLL Stmt vstore(Array<Expr> begin, Expr value) const;
   /*!
+   * \brief Create a Stmt that does a vector mask store at begin index.
+   * \param begin The beginning index
+   * \param value The value to be stored.
+   * \param predicate The mask of the value to be stored.
+   */
+  TVM_DLL Stmt pvstore(Array<Expr> begin, Expr value, Expr predicate) const;
+  /*!
    * \brief access the internal node container
    * \return the pointer to the internal node container
    */
