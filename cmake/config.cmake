@@ -105,6 +105,10 @@ set(USE_BLAS none)
 # set(USE_MKL_PATH ../IntelSWTools/compilers_and_libraries_2018/windows/mkl) for WIN32
 set(USE_MKL_PATH none)
 
+# Whether use OpenMP thread pool, choices: gnu, intel
+# Note: "gnu" uses gomp library, "intel" uses iomp5 library
+set(USE_OPENMP none)
+
 # Whether use contrib.random in runtime
 set(USE_RANDOM OFF)
 
