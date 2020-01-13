@@ -261,7 +261,16 @@ class ThreadPool {
     for (std::unique_ptr<SpscTaskQueue>& q : queues_) {
       q->SignalForKill();
     }
-    threads_.reset();
+    const char *val = getenv("TVM_SKIP_JOIN_IN_DTOR");
+    if (val == nullptr || atoi(val) == 0) {
+      threads_.reset();
+    } else {
+      // workaround to disable ThreadGroup dtor which causes double-free issue, probably related to thread_local release order
+      threads_.release();
+      for (std::unique_ptr<SpscTaskQueue>& q : queues_) {
+        q.release();
+      }
+    }
   }
   int Launch(FTVMParallelLambda flambda,
              void* cdata,
