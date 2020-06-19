@@ -532,7 +532,9 @@ class IntSetEvaluator :
     return Eval(op->value);
   }
   IntSet VisitExprDefault_(const Node* op, const Expr& e) final {
+#if 0
     LOG(WARNING) << "cannot evaluate set type " << e->type_key();
+#endif
     return IntSet::everything();
   }
 
