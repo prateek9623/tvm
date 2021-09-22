@@ -202,8 +202,8 @@ include(cmake/modules/contrib/NNPack.cmake)
 include(cmake/modules/contrib/HybridDump.cmake)
 
 add_library(tvm SHARED ${COMPILER_SRCS} ${RUNTIME_SRCS})
-# Create the lib version where 0.5 is the current TVM version and 1 is the MS patch version
-set_target_properties(tvm PROPERTIES VERSION 0.5.1)
+# Create the lib version where 0.5 is the current TVM version and 2 is the MS patch version
+set_target_properties(tvm PROPERTIES VERSION 0.5.2)
 add_library(tvm_topi SHARED ${TOPI_SRCS})
 add_library(tvm_runtime SHARED ${RUNTIME_SRCS})
 if(NOT USE_SGX STREQUAL "OFF")
