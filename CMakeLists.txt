@@ -99,7 +99,7 @@ endif(MSVC)
 # patch for preventing Halide from applying distributive rule on floating values.
 set(HALIDE_PATCH_COMMAND1 git apply ${PROJECT_SOURCE_DIR}/cmake/patches/halide_fp_simplify.patch)
 execute_process(COMMAND ${HALIDE_PATCH_COMMAND1} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/3rdparty/HalideIR)
-# Tensorization patch for export functions in Halide 
+# Tensorization patch for export functions in Halide
 set(HALIDE_PATCH_COMMAND2 git apply ${PROJECT_SOURCE_DIR}/cmake/patches/halideIR.patch)
 execute_process(COMMAND ${HALIDE_PATCH_COMMAND2} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/3rdparty/HalideIR)
 
@@ -221,15 +221,21 @@ target_link_libraries(nnvm_compiler tvm)
 # Related headers
 target_include_directories(
   tvm
-  PUBLIC "3rdparty/HalideIR/src"
-  PUBLIC "topi/include")
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/3rdparty/HalideIR/src>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/topi/include>"
+)
 target_include_directories(
   tvm_topi
-  PUBLIC "topi/include")
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/topi/include>"
+)
 target_include_directories(
   nnvm_compiler
-  PUBLIC "nnvm/include"
-  PUBLIC "topi/include")
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/nnvm/include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/topi/include>"
+)
 
 # Tests
 set(TEST_EXECS "")
@@ -254,40 +260,40 @@ endif()
 add_custom_target(runtime DEPENDS tvm_runtime)
 
 # Installation rules
-install(TARGETS tvm DESTINATION lib${LIB_SUFFIX})
-install(TARGETS tvm_topi DESTINATION lib${LIB_SUFFIX})
-install(TARGETS tvm_runtime DESTINATION lib${LIB_SUFFIX})
-install(TARGETS nnvm_compiler DESTINATION lib${LIB_SUFFIX})
+install(TARGETS tvm EXPORT ${PROJECT_NAME}Targets DESTINATION lib${LIB_SUFFIX})
+install(TARGETS tvm_topi EXPORT ${PROJECT_NAME}Targets DESTINATION lib${LIB_SUFFIX})
+install(TARGETS tvm_runtime EXPORT ${PROJECT_NAME}Targets DESTINATION lib${LIB_SUFFIX})
+install(TARGETS nnvm_compiler EXPORT ${PROJECT_NAME}Targets DESTINATION lib${LIB_SUFFIX})
 
 if (INSTALL_DEV)
   install(
-    DIRECTORY "include/." DESTINATION "include"
+    DIRECTORY "include/" DESTINATION "include"
     FILES_MATCHING
     PATTERN "*.h"
   )
   install(
-    DIRECTORY "topi/include/." DESTINATION "include"
+    DIRECTORY "topi/include/" DESTINATION "include"
     FILES_MATCHING
     PATTERN "*.h"
   )
   install(
-    DIRECTORY "3rdparty/HalideIR/src/." DESTINATION "include/HalideIR"
+    DIRECTORY "3rdparty/HalideIR/src/" DESTINATION "include/HalideIR"
     FILES_MATCHING
     PATTERN "*.h"
   )
   install(
-    DIRECTORY "3rdparty/dlpack/include/." DESTINATION "include"
+    DIRECTORY "3rdparty/dlpack/include/" DESTINATION "include"
     FILES_MATCHING
     PATTERN "*.h"
     )
   install(
-    DIRECTORY "nnvm/include/." DESTINATION "include"
+    DIRECTORY "nnvm/include/" DESTINATION "include"
     FILES_MATCHING
     PATTERN "*.h"
     )
 else(INSTALL_DEV)
   install(
-    DIRECTORY "include/tvm/runtime/." DESTINATION "include/tvm/runtime"
+    DIRECTORY "include/tvm/runtime/" DESTINATION "include/tvm/runtime"
     FILES_MATCHING
     PATTERN "*.h"
     )
@@ -301,3 +307,26 @@ if(MSVC)
   target_compile_definitions(tvm_runtime PRIVATE -DTVM_EXPORTS)
   target_compile_definitions(nnvm_compiler PRIVATE -DNNVM_EXPORTS)
 endif()
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+set(PROJECT_CONFIG_CONTENT "@PACKAGE_INIT@\n")
+string(APPEND PROJECT_CONFIG_CONTENT "include(CMakeFindDependencyMacro)\n")
+string(APPEND PROJECT_CONFIG_CONTENT "find_dependency(Threads REQUIRED)\n")
+string(APPEND PROJECT_CONFIG_CONTENT
+       "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/temp_config_file.cmake" ${PROJECT_CONFIG_CONTENT})
+
+install(EXPORT ${PROJECT_NAME}Targets
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+
+# Create config for find_package()
+configure_package_config_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/temp_config_file.cmake" ${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+
+install(
+  FILES
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
